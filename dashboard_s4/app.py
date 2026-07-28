@@ -195,33 +195,24 @@ elif analysis_choice == 'Party-wise':
 
 
         # --- YOUR UI CODE ---
-        # --- YOUR UI CODE ---
-        import os
-        
         with st.container(border=False):
             logo_col, name_col, stats_col = st.columns([1, 3, 1], vertical_alignment="center")
 
             symbol_url = party_data['party_symbol'].unique()[0]
             
-            # Safely define the fallback path
-            fallback_path = str(BASE_DIR / "independent.jpg")
-            
             # Process the URL through our bulletproof function
-            image_result = force_display_image(symbol_url, fallback_path)
+            fallback = (BASE_DIR / "independent.jpg")
+            image_result = force_display_image(symbol_url, fallback)
             
             with logo_col:
                 if image_result["type"] == "html":
                     # Force render via HTML Base64 injection
                     st.markdown(image_result["content"], unsafe_allow_html=True)
-                    st.caption(f'Rank: #{current_party_rank}')
+                    # Add caption below the HTML image
+                    st.caption(f'Rank: #{current_party_rank}', text_alignment='center')
                 else:
-                    # CRASH PREVENTION: Check if the local file actually exists on the server
-                    if os.path.exists(image_result["content"]):
-                        st.image(image_result["content"], caption=f'Rank: #{current_party_rank}', use_container_width=True)
-                    else:
-                        # If the image is completely missing from the server, show a text placeholder instead of crashing
-                        st.error("Logo missing")
-                        st.caption(f'Rank: #{current_party_rank}')
+                    # Standard fallback for the local independent image
+                    st.image(image_result["content"], caption=f'Rank: #{current_party_rank}', use_container_width=True)
 
             name_col.title(selected_party)
 
