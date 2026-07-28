@@ -195,24 +195,32 @@ elif analysis_choice == 'Party-wise':
 
 
         # --- YOUR UI CODE ---
+        # --- YOUR UI CODE ---
         with st.container(border=False):
             logo_col, name_col, stats_col = st.columns([1, 3, 1], vertical_alignment="center")
 
             symbol_url = party_data['party_symbol'].unique()[0]
             
+            # Safely define the fallback path
+            fallback_path = str(BASE_DIR / "independent.jpg")
+            
             # Process the URL through our bulletproof function
-            fallback = (BASE_DIR / "independent.jpg")
-            image_result = force_display_image(symbol_url, fallback)
+            image_result = force_display_image(symbol_url, fallback_path)
             
             with logo_col:
                 if image_result["type"] == "html":
                     # Force render via HTML Base64 injection
                     st.markdown(image_result["content"], unsafe_allow_html=True)
-                    # Add caption below the HTML image
-                    st.caption(f'Rank: #{current_party_rank}', text_alignment='center')
+                    st.caption(f'Rank: #{current_party_rank}')
                 else:
-                    # Standard fallback for the local independent image
-                    st.image(image_result["content"], caption=f'Rank: #{current_party_rank}', use_container_width=True)
+                    # ULTIMATE CRASH PREVENTION: Wrap st.image in a try/except block
+                    try:
+                        st.image(image_result["content"], caption=f'Rank: #{current_party_rank}', use_container_width=True)
+                    except Exception as e:
+                        # If Streamlit fails to find/read the local file on the cloud server, DO NOT CRASH.
+                        # Just show a text placeholder instead.
+                        st.info("Logo Unavailable")
+                        st.caption(f'Rank: #{current_party_rank}')
 
             name_col.title(selected_party)
 
