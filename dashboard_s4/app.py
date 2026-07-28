@@ -187,7 +187,7 @@ elif analysis_choice == 'Party-wise':
                 display_target = symbol_img if symbol_img else str(BASE_DIR / "independent.JPG")
                 
                 # Display image stretched to fit column width
-                st.image(display_target, caption=f'Rank: #{current_party_rank}', use_container_width=True)
+                st.image(display_target, caption=f'Rank: #{current_party_rank}', width='stretch')
 
             # Display party title in middle column
             name_col.title(selected_party)
