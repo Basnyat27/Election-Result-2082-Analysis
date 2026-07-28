@@ -139,14 +139,81 @@ elif analysis_choice == 'Party-wise':
         total_party_votes = party_rankings['votes'].sum()
 
         # --- PARTY HEADER & METRICS ---
+        # with st.container(border=False):
+        #     logo_col, name_col, stats_col = st.columns([1, 3, 1], vertical_alignment="center")
+
+            # Display Party Symbol or Independent Logo
+            # symbol_url = party_data['party_symbol'].unique()[0]
+            # display_image = symbol_url if pd.notna(symbol_url) else (BASE_DIR / "independent.jpg")
+            
+            # logo_col.image(display_image, caption=f'Rank: #{current_party_rank}', width='stretch')
+
+        import requests
+        import base64
+        import urllib3
+
+        # Suppress warnings if the target website has a broken SSL certificate
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        def force_display_image(url, fallback_path):
+            """
+            Fetches an image bypassing 403s, SSL errors, and CORS, then converts it 
+            to a Base64 HTML string so the browser is forced to render it.
+            """
+            if pd.isna(url) or not str(url).startswith('http'):
+                return {"type": "local", "content": fallback_path}
+                
+            try:
+                # 1. Spoof a full Chrome browser to bypass anti-scraping walls
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+                    "Referer": url # Tricks the server into thinking the request comes from its own site
+                }
+                
+                # 2. verify=False forces the download even if their SSL certificate is invalid
+                response = requests.get(url, headers=headers, timeout=10, verify=False)
+                response.raise_for_status()
+
+                # 3. Convert directly to Base64 to bypass Streamlit processing limits (like SVGs)
+                content_type = response.headers.get("Content-Type", "image/png").split(";")[0]
+                encoded_image = base64.b64encode(response.content).decode("utf-8")
+                
+                # 4. Build raw HTML to force the browser to render the raw data
+                html_string = f"""
+                <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+                    <img src="data:{content_type};base64,{encoded_image}" 
+                        style="width: 100%; max-width: 100%; border-radius: 4px;" 
+                        alt="Party Symbol" />
+                </div>
+                """
+                return {"type": "html", "content": html_string}
+                
+            except Exception as e:
+                # If the server is literally offline, fail gracefully to the default image
+                return {"type": "local", "content": fallback_path}
+
+
+        # --- YOUR UI CODE ---
         with st.container(border=False):
             logo_col, name_col, stats_col = st.columns([1, 3, 1], vertical_alignment="center")
 
-            # Display Party Symbol or Independent Logo
             symbol_url = party_data['party_symbol'].unique()[0]
-            display_image = symbol_url if pd.notna(symbol_url) else "independent.jpg"
             
-            logo_col.image(display_image, caption=f'Rank: #{current_party_rank}', width='stretch')
+            # Process the URL through our bulletproof function
+            fallback = str(BASE_DIR / "independent.jpg")
+            image_result = force_display_image(symbol_url, fallback)
+            
+            with logo_col:
+                if image_result["type"] == "html":
+                    # Force render via HTML Base64 injection
+                    st.markdown(image_result["content"], unsafe_allow_html=True)
+                    # Add caption below the HTML image
+                    st.caption(f'Rank: #{current_party_rank}', text_alignment='center')
+                else:
+                    # Standard fallback for the local independent image
+                    st.image(image_result["content"], caption=f'Rank: #{current_party_rank}', use_container_width=True)
+
             name_col.title(selected_party)
 
             # Display Party Wins and Vote Share
