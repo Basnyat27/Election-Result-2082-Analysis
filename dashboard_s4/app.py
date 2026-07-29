@@ -109,11 +109,11 @@ if analysis_choice == 'Overall Analysis':
         # Calculate Voter Turnout Percentage
         turnout_data = election_data.groupby('constituency')[['votes_cast', 'total_voters']].head(1)
         turnout_percentage = (turnout_data['votes_cast'].sum() / turnout_data['total_voters'].sum()) * 100
-        metric_col2.metric('TURNOUT %', round(turnout_percentage, 2))
+        metric_col2.metric('TURNOUT', f'{round(turnout_percentage, 1)}%')
 
-        # Count Female and Male Candidates
-        metric_col3.metric('FEMALE CANDIDATES', election_data[election_data['gender'] == 'F']['candidate'].count())
-        metric_col4.metric('MALE CANDIDATES', election_data[election_data['gender'] == 'M']['candidate'].count())
+        # Female and Young Candidates (Percentage)
+        metric_col3.metric('FEMALE CANDIDATES', f'{round(election_data[election_data['gender'] == 'F']['candidate'].count()/election_data['candidate'].count()*100, 1)}%')
+        metric_col4.metric('YOUTH INDIVIDUALS', f'{round(election_data[election_data['age'] <= 40]['candidate'].count()/election_data['age'].count()*100, 1)}%')
 
     # --- TOP 20 CANDIDATES TABLE ---
     st.subheader("Top 20 Winning Candidates")
@@ -267,8 +267,16 @@ elif analysis_choice == 'Candidate-wise':
                 party_name = candidate_data['party'].values[0]
                 
                 # Metrics Row
-                party_label_col, vote_metric_col = st.columns([3, 1])
-                party_label_col.subheader(f"({party_name})")
+                party_label_col, vote_metric_col = st.columns([3, 1], border=False)
+
+                with party_label_col:
+                    # Display the party name
+                    st.subheader(f"({party_name})")
+
+                    # Display candidate details (gender, age, and role)
+                    gender_val = "Male" if candidate_data['gender'].values[0] == 'M' else "Female"
+                    age_val = candidate_data['age'].values[0]
+                    st.markdown(f'- {gender_val}, {age_val} years old | Candidacy: House of Representatives')
                 
                 # Calculate candidate's vote percentage inside their constituency
                 total_constituency_votes = election_data[election_data['constituency'] == constituency]['votes'].sum()
@@ -283,9 +291,9 @@ elif analysis_choice == 'Candidate-wise':
         with info_col:
             st.markdown("#### :gray[PERSONAL INFORMATION]")
             with st.container(border=True):
-                gender_val = "Male" if candidate_data['gender'].values[0] == 'M' else "Female"
+                candidate_status = "Winner" if candidate_data['is_winner'].values[0] == True else "Declared"
                 
-                st.write(f"***GENDER:** {gender_val}*")
+                st.write(f"***STATUS:** {candidate_status}*")
                 st.write(f"***FATHER:** {candidate_data['father'].values[0]}*")
                 st.write(f"***SPOUSE:** {candidate_data['spouse'].values[0]}*")
                 st.write(f"***ADDRESS:** {candidate_data['address'].values[0]}*")
