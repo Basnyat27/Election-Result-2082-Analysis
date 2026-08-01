@@ -17,19 +17,19 @@ The core objective of this project is to extract actionable insights from electo
 
 ---
 
-## 🛠️ Data Collection & Wrangling
+## 🛠️ [Data Collection & Wrangling](https://github.com/Basnyat27/Election-Result-2082-Analysis/blob/main/2.%20data_wrangling/2.1%20data_gathering/second_way/data_collection.ipynb)
 Gathering accurate and comprehensive data was a crucial first step, requiring data extraction from multiple sources and formats.
 
 *   **JSON Data:** Retrieved candidates, parties, and constituencies-related data from `nepalvotes.live`.
 *   **Web Scraping:** Extracted missing candidate ages, candidate photos, and party symbols directly from the official portal `result.election.gov.np`.
 *   **AI Integration:** Leveraged ChatGPT to generate constituencies' geospatial coordinates in CSV format, which were subsequently validated for accuracy.
 
-### Assessing and Cleaning Data
+### [Assessing and Cleaning Data](https://github.com/Basnyat27/Election-Result-2082-Analysis/blob/main/2.%20data_wrangling/2.2%20data_assessing_and_cleaning/data_preparation_2nd_way.ipynb)
 The raw datasets presented several structural and quality issues. These were addressed through multiple iterative cleaning steps to ensure robust and reliable data for analysis.
 
 ---
 
-## 📊 Exploratory Data Analysis (EDA) & Key Insights
+## 📊 [Exploratory Data Analysis (EDA) & Key Insights](https://github.com/Basnyat27/Election-Result-2082-Analysis/blob/main/3.%20eda/eda_on_election_data.ipynb)
 Extensive univariate and bivariate analyses, alongside feature engineering, were conducted to draw meaningful conclusions. 
 
 **Key Findings:**
@@ -47,7 +47,7 @@ Extensive univariate and bivariate analyses, alongside feature engineering, were
 
 ---
 
-## 📈 Interactive Streamlit Dashboard
+## 📈 [Interactive Streamlit Dashboard](https://election-result-2082-analysis-rnxsmltzc97dqrpirtgu4m.streamlit.app/)
 To make the data accessible and engaging, an interactive dashboard was developed using Streamlit. It offers three distinct analytical views:
 
 ### 1. Overall Analysis
